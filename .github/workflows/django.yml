@@ -12,21 +12,6 @@ jobs:
   test:
     runs-on: ubuntu-latest
 
-    services:
-      postgres:
-        image: postgres:13
-        env:
-          POSTGRES_USER: myuser
-          POSTGRES_PASSWORD: mypassword
-          POSTGRES_DB: test_db
-        ports:
-          - 5432:5432
-        options: >-
-          --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -34,7 +19,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: '3.9'
+          python-version: '3.11'  # Use the same Python version as your local machine
 
       - name: Install dependencies
         run: |
@@ -42,11 +27,7 @@ jobs:
           pip install -r requirements.txt
 
       - name: Run migrations
-        env:
-          DATABASE_URL: postgres://myuser:mypassword@localhost:5432/test_db
         run: python manage.py migrate
 
       - name: Run tests
-        env:
-          DATABASE_URL: postgres://myuser:mypassword@localhost:5432/test_db
         run: python manage.py test
