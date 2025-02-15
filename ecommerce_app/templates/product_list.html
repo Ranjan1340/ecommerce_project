@@ -1,0 +1,75 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2 class="text-center mb-4">Product Listing</h2>
+    <div class="row">
+        {% for product in products %}
+        <div class="col-md-4 mb-4">
+            <div class="card shadow-lg">
+                <img src="{{ product.image.url }}" class="card-img-top" alt="{{ product.name }}">
+                <div class="card-body">
+                    <h5 class="card-title">{{ product.name }}</h5>
+                    <p class="card-text">{{ product.description|truncatewords:15 }}</p>
+                    <p><strong>Price: ₹{{ product.price }}</strong></p>
+                    <p><strong>Category:</strong> {{ product.category.name }}</p>
+                    <p><strong>Brand:</strong> {{ product.brand.name }}</p>
+
+                    <!-- Quantity Input -->
+                    <div class="d-flex align-items-center mb-3">
+                        <button class="btn btn-outline-secondary btn-sm decrease-qty" data-product-id="{{ product.id }}">−</button>
+                        <input type="text" id="qty-{{ product.id }}" class="form-control text-center mx-2" value="1" min="1" style="width: 50px;">
+                        <button class="btn btn-outline-secondary btn-sm increase-qty" data-product-id="{{ product.id }}">+</button>
+                    </div>
+
+                    <!-- Add to Cart Button -->
+                    <a href="#" class="btn btn-primary btn-sm add-to-cart" data-product-id="{{ product.id }}">
+                        Add to Cart
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <p class="text-center">No products available.</p>
+        {% endfor %}
+    </div>
+</div>
+
+<!-- JavaScript to Handle Quantity Change -->
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        // Increase Quantity
+        document.querySelectorAll(".increase-qty").forEach(button => {
+            button.addEventListener("click", function() {
+                let productId = this.dataset.productId;
+                let input = document.getElementById("qty-" + productId);
+                input.value = parseInt(input.value) + 1;
+            });
+        });
+
+        // Decrease Quantity
+        document.querySelectorAll(".decrease-qty").forEach(button => {
+            button.addEventListener("click", function() {
+                let productId = this.dataset.productId;
+                let input = document.getElementById("qty-" + productId);
+                if (parseInt(input.value) > 1) {
+                    input.value = parseInt(input.value) - 1;
+                }
+            });
+        });
+
+        // Handle Add to Cart Click
+        document.querySelectorAll(".add-to-cart").forEach(button => {
+    button.addEventListener("click", function(event) {
+        event.preventDefault();
+        let productId = this.dataset.productId;
+        let quantity = document.getElementById("qty-" + productId).value;
+        let url = `/add-to-cart/${productId}/?quantity=${quantity}`;
+        window.location.href = url;  // Redirect with selected quantity
+    });
+});
+
+    });
+</script>
+{% endblock %}
